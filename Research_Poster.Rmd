@@ -1,0 +1,162 @@
+---
+title: "Race and Economic Opportunity: A Machine Learning Analysis"
+author:
+  - name: "Byeolha Kim"
+    affil: 1
+    email: bk4098a@american.edu
+    main: true
+affiliation:
+  - num: 1
+    address: American University
+main_findings:
+  - "Finding 1: Higher Black population count → lower mobility."
+  - "Finding 2: Parent income strongly predicts adult rank."
+  - "Finding 3: KNN predicts outcomes effectively."
+logoleft_name: '![](https://raw.githubusercontent.com/brentthorne/posterdown/master/images/qr-code-black.png){.main-img-left}'
+logoright_name: '![](https://raw.githubusercontent.com/brentthorne/posterdown/master/images/betterhexlogo.png){.main-img-right}'
+output: 
+  posterdown::posterdown_betterland:
+    self_contained: false
+    pandoc_args: --mathjax
+    highlight: haddock
+    number_sections: false
+link-citations: true
+bibliography: packages.bib
+---
+
+<style>
+  body {
+    font-size: 42px !important;
+  }
+  .main-findings {
+    font-size: 34px !important;
+    border: 3px solid #4A90E2;
+    background-color: #eef5fb;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  h1, h2, h3 {
+    margin-top: 40px;
+  }
+  figcaption {
+    font-size: 28px !important;
+    text-align: center;
+  }
+</style>
+
+```{r setup, include=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(caret)
+library(e1071)
+
+knitr::opts_chunk$set(results = 'asis',
+                      echo = FALSE,
+                      warning = FALSE,
+                      tidy = FALSE,
+                      message = FALSE,
+                      fig.align = 'center',
+                      out.width = "90%",
+                      fig.width = 10,
+                      fig.height = 6)
+options(knitr.table.format = "html") 
+
+data <- read_csv("C:/Users/Byeolha Kim/OneDrive - american.edu/SIS-750-004/Codebook/table_1.csv")
+data <- dplyr::filter_all(data, all_vars(!is.na(.)))
+```
+
+# Introduction
+- This poster explores how race and socio-economic background predict future income outcomes in the U.S.
+- Using Opportunity Insights data, we evaluate correlations between race, parental income, and adult income rank.
+- Statistical and machine learning models are used to evaluate predictive performance.
+
+# Methods
+- Data: U.S. Census Public Use Data from Opportunity Insights
+- Sample size: 64 observations
+- Key variables: `par_pctile`, `count_black_pooled`, `kir_1par_black_male`, `kir_1par_white_male`
+
+$$
+IncomeRank = f(ParentIncome, BlackPopulation)
+$$
+
+# Results
+
+## CDF of Parent Percentile
+The CDF plot of parent income percentile shows a near-perfect linear increase, indicating a uniform distribution across socio-economic statuses.
+
+```{r cdf-plot, fig.cap='CDF of Parent Income Percentile'}
+ggplot(data, aes(x = par_pctile)) +
+  stat_ecdf(geom = "step", color = "blue") +
+  theme_minimal()
+```
+
+## Histogram of Black Population Count
+The histogram is skewed towards lower Black population counts, with peaks at lower counts, suggesting racial segregation patterns.
+
+```{r histogram-black-count, fig.cap='Histogram of Black Population Count'}
+ggplot(data, aes(x = count_black_pooled)) +
+  geom_histogram(binwidth = 5000, fill = "green", color = "black") +
+  theme_minimal()
+```
+
+## Scatter Plot with Regression
+Higher Black population counts correlate negatively with income ranks for Black males from single-parent households, highlighting systemic disparities.
+
+```{r scatter-black-kir, fig.cap='Black Count vs. Economic Outcome (Black Males, 1 Parent)'} 
+ggplot(data, aes(x = count_black_pooled, y = kir_1par_black_male)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", color = "red") +
+  theme_minimal()
+```
+
+## Correlation Matrix
+Parental income percentile is positively correlated with economic outcomes, whereas Black population size is negatively correlated.
+
+```{r correlation-matrix}
+cor_matrix <- cor(data[, c("par_pctile", "count_black_pooled", "kir_1par_black_male", "kir_1par_white_male")])
+knitr::kable(cor_matrix, caption = "Correlation Matrix of Key Variables")
+```
+
+## Predictive Modeling (KNN)
+The KNN model (k=5) achieves an RMSE of 1.078 and an R-squared of 0.962, suggesting strong predictive capacity based on only two predictors.
+
+```{r knn-model}
+predictors <- c("par_pctile", "count_black_pooled")
+target <- "kir_1par_black_male"
+
+set.seed(123)
+trainIndex <- createDataPartition(data[[target]], p = .8, list = FALSE)
+train_data <- data[trainIndex, ]
+test_data <- data[-trainIndex, ]
+
+control <- trainControl(method = "cv", number = 10)
+knn_fit <- train(as.formula(paste(target, "~", paste(predictors, collapse = " + "))),
+                 data = train_data,
+                 method = "knn",
+                 trControl = control,
+                 metric = "RMSE")
+
+knn_predictions <- predict(knn_fit, newdata = test_data)
+knn_rmse <- sqrt(mean((knn_predictions - test_data[[target]])^2))
+knn_r2 <- cor(knn_predictions, test_data[[target]])^2
+
+knitr::kable(
+  data.frame(
+    Metric = c("RMSE", "R-squared"),
+    Value = c(round(knn_rmse, 3), round(knn_r2, 3))
+  ),
+  caption = "KNN Model Performance"
+)
+```
+
+# References
+- Opportunity Insights Data. https://opportunityinsights.org/
+- R Core Team. (2024). R: A language and environment for statistical computing. https://www.R-project.org/
+- Wickham, H. et al. (2023). dplyr: A Grammar of Data Manipulation. https://CRAN.R-project.org/package=dplyr
+- Kuhn, M. (2023). caret: Classification and Regression Training. https://CRAN.R-project.org/package=caret
+- Xie, Y. (2024). knitr: A General-Purpose Package for Dynamic Report Generation in R. https://yihui.org/knitr/
+
+```{r references, include=FALSE}
+knitr::write_bib(c('posterdown', 'rmarkdown', 'ggplot2', 'caret', 'dplyr'), 'packages.bib')
+```

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+<title>Race and Economic Opportunity: A Machine Learning Analysis</title>
+
+
+
+
+
+
+
+<!--
+Font-awesome icons ie github or twitter
+-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/brands.css" integrity="sha384-n9+6/aSqa9lBidZMRCQHTHKJscPq6NW4pCQBiMmHdUCvPN8ZOg2zJJTkC7WIezWv" crossorigin="anonymous">
+
+<!--
+Google fonts api stuff
+-->
+<link href='https://fonts.googleapis.com/css?family=Special Elite' rel='stylesheet'>
+<link href='https://fonts.googleapis.com/css?family=Rasa' rel='stylesheet'>
+
+<!--
+Here are the required style attributes for css to make this poster work :)
+-->
+<style>
+@page {
+size: 46in 32in;
+margin: 0;
+padding: 0;
+background-color: #ffffff;
+}
+body {
+margin: 0px;
+padding: 0px;
+width: 46in;
+height: 32in;
+text-align: justify;
+font-size: 45px;
+background-color: #FFFFFF;
+color: #000000;
+}
+/* RMarkdown Class Styles */
+/* center align leaflet map,
+from https://stackoverflow.com/questions/52112119/center-leaflet-in-a-rmarkdown-document */
+.html-widget {
+margin: auto;
+position: sticky;
+margin-top: 2cm;
+margin-bottom: 2cm;
+}
+.leaflet.html-widget.html-widget-static-bound.leaflet-container.leaflet-touch.leaflet-fade-anim.leaflet-grab.leaflet-touch-drag.leaflet-touch-zoom {
+position: sticky;
+width: 100%;
+}
+pre.sourceCode.r {
+background-color: #dddddd40;
+border-radius: 4mm;
+padding: 4mm;
+width: 75%;
+margin: auto;
+margin-top: 1em;
+margin-bottom: 1em;
+/* align-items: center; */
+}
+code.sourceCode.r{
+background-color: transparent;
+font-size: 20pt;
+border-radius: 2mm;
+}
+code {
+font-size: 25pt;
+font-family: monospace;
+background-color: #00808024;
+color: #0b4545;
+padding: 1.2mm;
+line-height: 1;
+border-radius: 2mm;
+}
+caption {
+margin-bottom: 10px;
+font-size: 20pt;
+font-style: italic;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #0b454520;
+}
+.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td{
+  border-spacing: 0;
+  font-size: 40%;
+  border-style: none;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-right: 1em;
+  padding-left: 1em;
+  line-height: 1em;
+}
+table {
+  margin: auto;
+}
+th {
+  padding-left: 5mm;
+  padding-right: 5mm;
+}
+.caption {
+font-size: 20pt;
+font-style: italic;
+padding-top: 0;
+}
+.references {
+font-size: 20px;
+line-height: 90%;
+}
+/* Create three unequal columns that floats next to each other */
+.column {
+float: left;
+padding: 0px;
+}
+.outer {
+width: 46in;
+height: 32in;
+-webkit-column-count: 2; /* Chrome, Safari, Opera */
+-moz-column-count: 2; /* Firefox */
+column-count: 2;
+-webkit-column-fill: auto;
+-moz-column-fill: auto;
+column-fill: auto;
+-webkit-column-rule-width: 50%;
+-moz-column-rule-width: 50%;
+column-rule-width: 50%;
+-webkit-column-rule-style: solid;
+-moz-column-rule-style: solid;
+column-rule-style: solid;
+-webkit-column-rule-color: black;
+-moz-column-rule-color: black;
+column-rule-color: black;
+-webkit-column-gap: 50%;
+background-color: #ffffff;
+font-family: Rasa;
+color: #000000;
+}
+span.citation {
+  color: #008080;
+  font-weight: bold;
+}
+a {
+text-decoration: none;
+color: #008080;
+}
+#title {
+font-size: 125pt;
+text-align: left;
+margin: 0;
+line-height: 90%;
+border-bottom: 0;
+}
+#author {
+color: #0b4545;
+margin: 0;
+line-height: 90%;
+font-size: 1.17em;
+}
+#affiliation {
+padding-top: 1em;
+color: #00000060;
+font-style: italic;
+font-size: 25px;
+margin: 0;
+}
+sup {
+color: #cc0000;
+}
+.affiliation sup {
+font-size: 20px;
+}
+.author sup {
+font-size: 30px;
+}
+.author_extra {
+color: #008080;
+margin: 0;
+line-height: 85%;
+font-size: 35px;
+}
+.outer h1 {
+text-align: center;
+margin-top: 0.5in;
+margin-bottom: 0.5in;
+}
+.outer h2 {
+text-align: center;
+}
+.outer p {
+color: #000000;
+}
+.outer ol {
+text-align: left;
+}
+.main {
+width: calc(46in / 2);
+height: 32in;
+position: absolute;
+margin-left: calc(46in / 4);
+background-color: #0b4545;
+color: #FFFFFF90;
+font-family: Special Elite;
+background-image: linear-gradient(#0b4545 50%, #008080);
+}
+.main strong {
+color: #FFFFFF;
+}
+img.main-img-left {
+width: 20%;
+left: 0.5in;
+bottom: 0.2in;
+position: absolute;
+}
+img.main-img-right {
+width: 18%;
+right: 0.5in;
+bottom: 0.2in;
+position: absolute;
+}
+.main p {
+padding-top: 20%;
+font-size: 170px;
+text-align: left;
+}
+.fab {
+color: #00000060;
+font-size: 25px;
+}
+.twitter, i {
+color: #00000060;
+font-size: 35px;
+text-decoration: none;
+}
+a.email {
+text-decoration: none;
+color: #00000060;
+font-size: 35px;
+}
+.envelope {
+color: #00000060;
+font-size: 5px;
+text-decoration: none;
+}
+.poster_wrap {
+width: 46in;
+height: 32in;
+padding: 0cm;
+background-color: #ffffff;
+}
+span > #tab:mytable {
+  font-weight: bold;
+}
+.section {
+  padding-left: 10mm;
+  padding-right: 10mm;
+}
+.main p {
+  padding-left: 30mm;
+  padding-right: 30mm;
+}
+.main_pic {
+  width: 50%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.orcid img {
+  width: 3%;
+}
+</style>
+</head>
+<body>
+
+
+<div class="poster_wrap">
+<div class="column outer">
+<br>
+<div class="title section">
+<h1 id="title">Race and Economic Opportunity: A Machine Learning Analysis</h1>
+<br>
+<h3 id="author" class="author">
+
+Byeolha Kim<sup> 1</sup><br>
+
+<a class='envelope'><i class="fas fa-envelope"></i></a> <a href="mailto:bk4098a@american.edu" class="email">bk4098a@american.edu</a> <br>
+</h3>
+
+<h5 id="author_extra" class="author_extra">
+</h5>
+
+<p id="affiliation" class="affiliation">
+<sup>1</sup> American University
+</p>
+
+</div>
+<style>
+  body {
+    font-size: 42px !important;
+  }
+  .main-findings {
+    font-size: 34px !important;
+    border: 3px solid #4A90E2;
+    background-color: #eef5fb;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  h1, h2, h3 {
+    margin-top: 40px;
+  }
+  figcaption {
+    font-size: 28px !important;
+    text-align: center;
+  }
+</style>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<ul>
+<li>This poster explores how race and socio-economic background predict future income outcomes in the U.S.</li>
+<li>Using Opportunity Insights data, we evaluate correlations between race, parental income, and adult income rank.</li>
+<li>Statistical and machine learning models are used to evaluate predictive performance.</li>
+</ul>
+</div>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
+<ul>
+<li>Data: U.S. Census Public Use Data from Opportunity Insights</li>
+<li>Sample size: 64 observations</li>
+<li>Key variables: <code>par_pctile</code>, <code>count_black_pooled</code>, <code>kir_1par_black_male</code>, <code>kir_1par_white_male</code></li>
+</ul>
+<p><span class="math display">\[
+IncomeRank = f(ParentIncome, BlackPopulation)
+\]</span></p>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<div id="cdf-of-parent-percentile" class="section level2">
+<h2>CDF of Parent Percentile</h2>
+<p>The CDF plot of parent income percentile shows a near-perfect linear increase, indicating a uniform distribution across socio-economic statuses.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cdf-plot"></span>
+<img src="Research_Poster_files/figure-html/cdf-plot-1.png" alt="CDF of Parent Income Percentile" width="90%" />
+<p class="caption">
+Figure 1: CDF of Parent Income Percentile
+</p>
+</div>
+</div>
+<div id="histogram-of-black-population-count" class="section level2">
+<h2>Histogram of Black Population Count</h2>
+<p>The histogram is skewed towards lower Black population counts, with peaks at lower counts, suggesting racial segregation patterns.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:histogram-black-count"></span>
+<img src="Research_Poster_files/figure-html/histogram-black-count-1.png" alt="Histogram of Black Population Count" width="90%" />
+<p class="caption">
+Figure 2: Histogram of Black Population Count
+</p>
+</div>
+</div>
+<div id="scatter-plot-with-regression" class="section level2">
+<h2>Scatter Plot with Regression</h2>
+<p>Higher Black population counts correlate negatively with income ranks for Black males from single-parent households, highlighting systemic disparities.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:scatter-black-kir"></span>
+<img src="Research_Poster_files/figure-html/scatter-black-kir-1.png" alt="Black Count vs. Economic Outcome (Black Males, 1 Parent)" width="90%" />
+<p class="caption">
+Figure 3: Black Count vs. Economic Outcome (Black Males, 1 Parent)
+</p>
+</div>
+</div>
+<div id="correlation-matrix" class="section level2">
+<h2>Correlation Matrix</h2>
+<p>Parental income percentile is positively correlated with economic outcomes, whereas Black population size is negatively correlated.</p>
+<table>
+<caption>
+<span id="tab:correlation-matrix">Table 1: </span>Correlation Matrix of Key Variables
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+par_pctile
+</th>
+<th style="text-align:right;">
+count_black_pooled
+</th>
+<th style="text-align:right;">
+kir_1par_black_male
+</th>
+<th style="text-align:right;">
+kir_1par_white_male
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+par_pctile
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+-0.9812083
+</td>
+<td style="text-align:right;">
+0.9838699
+</td>
+<td style="text-align:right;">
+0.9884774
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+count_black_pooled
+</td>
+<td style="text-align:right;">
+-0.9812083
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+-0.9679799
+</td>
+<td style="text-align:right;">
+-0.9729086
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+kir_1par_black_male
+</td>
+<td style="text-align:right;">
+0.9838699
+</td>
+<td style="text-align:right;">
+-0.9679799
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+0.9961677
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+kir_1par_white_male
+</td>
+<td style="text-align:right;">
+0.9884774
+</td>
+<td style="text-align:right;">
+-0.9729086
+</td>
+<td style="text-align:right;">
+0.9961677
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="predictive-modeling-knn" class="section level2">
+<h2>Predictive Modeling (KNN)</h2>
+<p>The KNN model (k=5) achieves an RMSE of 1.078 and an R-squared of 0.962, suggesting strong predictive capacity based on only two predictors.</p>
+<table>
+<caption>
+<span id="tab:knn-model">Table 2: </span>KNN Model Performance
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Metric
+</th>
+<th style="text-align:right;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+RMSE
+</td>
+<td style="text-align:right;">
+1.078
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R-squared
+</td>
+<td style="text-align:right;">
+0.962
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ul>
+<li>Opportunity Insights Data. <a href="https://opportunityinsights.org/" class="uri">https://opportunityinsights.org/</a></li>
+<li>R Core Team. (2024). R: A language and environment for statistical computing. <a href="https://www.R-project.org/" class="uri">https://www.R-project.org/</a></li>
+<li>Wickham, H. et al. (2023). dplyr: A Grammar of Data Manipulation. <a href="https://CRAN.R-project.org/package=dplyr" class="uri">https://CRAN.R-project.org/package=dplyr</a></li>
+<li>Kuhn, M. (2023). caret: Classification and Regression Training. <a href="https://CRAN.R-project.org/package=caret" class="uri">https://CRAN.R-project.org/package=caret</a></li>
+<li>Xie, Y. (2024). knitr: A General-Purpose Package for Dynamic Report Generation in R. <a href="https://yihui.org/knitr/" class="uri">https://yihui.org/knitr/</a></li>
+</ul>
+</div>
+
+</div>
+<div class="main">
+<p>Finding 1: Higher Black population count → lower mobility.<br><br> Finding 2: Parent income strongly predicts adult rank.<br><br> Finding 3: KNN predicts outcomes effectively.</p>
+<img src="https://raw.githubusercontent.com/brentthorne/posterdown/master/images/qr-code-black.png" class="main-img-left" />
+<img src="https://raw.githubusercontent.com/brentthorne/posterdown/master/images/betterhexlogo.png" class="main-img-right" />
+</div>
+</div>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+var script = document.createElement("script");
+script.type = "text/javascript";
+var src = "true";
+if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+if (location.protocol !== "file:" && /^https?:/.test(src))
+src = src.replace(/^https?:/, '');
+script.src = src;
+document.getElementsByTagName("head")[0].appendChild(script);
+})();
+</script>
+
+
+</body>
+</html>
