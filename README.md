@@ -3,7 +3,7 @@
 This project explores how racial and socio-economic factors affect economic mobility in the United States, using data from Opportunity Insights.
 
 ## 📌 Research Summary
-- **Data Source**: U.S. Census Public Use Microdata from [Census Public Use Data]([https://opportunityinsights.org/](https://www.census.gov/programs-surveys/ces/data/public-use-data/race-and-economic-opportunity-data-tables.html))
+- **Data Source**: U.S. Census Public Use Microdata from [Census Public Use Data](https://www.census.gov/programs-surveys/ces/data/public-use-data/race-and-economic-opportunity-data-tables.html)
 - **Objective**: Evaluate the extent to which parental income percentile and the size of the Black population predict income rank in adulthood
 - **Methods Used**:
   - Descriptive analysis with ECDF and histograms
